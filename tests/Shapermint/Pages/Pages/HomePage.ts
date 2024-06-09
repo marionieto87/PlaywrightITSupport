@@ -1,9 +1,11 @@
 import { type Locator, type Page } from '@playwright/test';
 
-export class HomePage{
+
+export class HomePage {
     readonly page: Page;
-    readonly welcomePopUp: Locator;
-    readonly popUpLocator: Locator;
+    readonly txtPlusUlockPopUp: Locator;
+    readonly txtExtraOffPopUp: Locator;
+    readonly txtRatherPayFullPopUp: Locator;
     readonly brasMenu: Locator;
     readonly pdpDescription: Locator;
     readonly countrySelector: Locator;
@@ -13,52 +15,58 @@ export class HomePage{
     readonly countryAustraliaSelector: Locator;
     readonly sealCollectionMenu: Locator;
     readonly descPdpCollectionBras: Locator;
-    
 
 
-
-    constructor(page: Page){
+    constructor(page: Page) {
         this.page = page;
-        this.popUpLocator = page.locator('[id="_oqxmfczn_popup-lead-trafilea-popup"]').getByText('×');
-        this.welcomePopUp = page.frameLocator('iframe[name="ju_iframe_906679"]').getByRole('button', { name: 'x', exact: true });
-        this.brasMenu = page.getByRole('link', { name: 'Bras' })
+        this.txtPlusUlockPopUp = page.getByText('Plus unlock an');
+        this.txtExtraOffPopUp = page.getByRole('heading', { name: 'EXTRA 10% OFF' });
+        this.txtRatherPayFullPopUp = page.getByText('I’d rather pay full price');
+        this.brasMenu = page.getByRole('link', { name: 'Bras' });
         this.countrySelector = page.getByRole('img', { name: 'country-selector' });
         this.countryCanadaSelector = page.getByText('Canada | CAD').first();
         this.countryUsaSelector = page.getByText('United States | USD').first();
         this.countryEnglandSelector = page.getByText('United Kingdom | GBP').first();
         this.countryAustraliaSelector = page.getByText('Australia | AUD').first();
-        this.sealCollectionMenu = page.locator('#headerWrap').getByRole('link', { name: 'Memorial Day Sale' });
+        this.sealCollectionMenu = page.locator('#headerWrap').getByRole('link', { name: 'SHM Birthday Sale' });
         this.descPdpCollectionBras = page.getByRole('link', { name: 'Truekind® Daily Comfort' });
     }
 
+    async gotoStage() {
+        await this.page.goto('https://nova.shapees.com/');
+    }
+
     async gotoUS() {
-        await this.page.goto('https://shapermint.com/')
+        await this.page.goto('https://shapermint.com/');
     }
 
     async gotoCA() {
-        await this.page.goto('https://shapermint.com/en-CA/')
+        await this.page.goto('https://shapermint.com/en-CA/');
     }
 
     async gotoGB() {
-        await this.page.goto('https://shapermint.com/en-GB/')
+        await this.page.goto('https://shapermint.com/en-GB/');
     }
 
     async gotoAU() {
-        await this.page.goto('https://shapermint.com/en-AU/')
+        await this.page.goto('https://shapermint.com/en-AU/');
     }
 
-    // async closeWelcomePopUpIfVisible() {
-    //     const popUpLocator = this.page.frameLocator('iframe[name="ju_iframe_906679"]').getByRole('button', { name: 'x', exact: true });
-    //     if (await popUpLocator.isVisible()) {
-    //         await popUpLocator.click();
-    //     }
-    // }
-
-    async closeWelcomePopUp(){
-        await this.popUpLocator.click();
+    async gotoPDP() {
+        await this.page.goto('https://shapermint.com/products/empetua-shaping-boyshort?variant=39695098478726');
     }
 
-    async clickBrasMenu(){
+    async closeWelcomePopUp() {
+        if (await this.txtRatherPayFullPopUp.isVisible()){
+            this.txtPlusUlockPopUp.isVisible();
+            this.txtExtraOffPopUp.isVisible();
+            await this.txtRatherPayFullPopUp.click();
+        } else {
+            console.log('El Pop Up no se lanzo');
+        }
+    }
+
+    async clickBrasMenu() {
         await this.brasMenu.click();
     }
 
@@ -87,13 +95,8 @@ export class HomePage{
     }
 
     async confirmDescriptionPdpBrasCollection() {
-        this.descPdpCollectionBras;
+        this.descPdpCollectionBras.isVisible();
     }
 
 
-
-
-
-    
 }
-

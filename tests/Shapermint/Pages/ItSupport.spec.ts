@@ -1,5 +1,6 @@
 import { test, Browser, Page, expect } from "@playwright/test";
-import { HomePage } from "./Pages/HomePage";
+import { HomePage } from './Pages/HomePage';
+import { BrasCollectionPage } from './Pages/BrasCollectionPage';
 
 (async () => {
     let browser: Browser;
@@ -11,19 +12,23 @@ import { HomePage } from "./Pages/HomePage";
             await test.step('Go to USA store', async () => {
                 const home = new HomePage(page)
                 await home.gotoUS();
+                
             });
             
-            // espera si abre el pop up welcome para cerrarlo si es visible, si no aparece sigue
-            const popUpWelcome = page.getByText('I’d rather pay full price');
-            if (await popUpWelcome.isVisible()){
-                await popUpWelcome.click();
-            }
+            await test.step('Validate and Close Welcome Pop up', async () => {
+                const home = new HomePage(page)
+                await test.info().attach('screenshot', {
+                    body: await page.screenshot(),
+                    contentType: 'image/png',
+                })
+                await home.closeWelcomePopUp();
+            })
             
             // Click en Bras collection
-            await test.step('User go to collection Bras', async () => {
+            await test.step('Go to Bras collection', async () => {
                 await page.getByRole('link', { name: 'Bras' }).click();
             });
-
+                 
             // Click en el primer PDP de la collection BRAS
             await test.step('Select the PDP Daily Comfort Wireless Shaper Bra', async () => {
                 await page.getByRole('link', { name: 'Wireless Shaper Bra black' }).click();
@@ -45,16 +50,18 @@ import { HomePage } from "./Pages/HomePage";
                 await page.getByRole('button', { name: 'PROCEED TO CHECKOUT' }).click();
             });
 
+            await test.info().attach('screenshot',{
+                body: await page.screenshot(),
+                contentType: "image/pgn",
+            });
+
             // Valida que los metodos de pago Paypal y Amazon esta disponibles
             await test.step('Validate Method payments Paypal - Amazon', async () => {
                 await expect(page.getByTestId('PayPalExpress-button')).toBeVisible();
                 await expect(page.getByTestId('AmazonExpress-button')).toBeVisible();
             });
 
-            await test.info().attach('screenshot',{
-                body: await page.screenshot(),
-                contentType: "image/pgn",
-            });
+
 
         })
 
@@ -101,10 +108,14 @@ import { HomePage } from "./Pages/HomePage";
                 await expect(page).toHaveURL(/.*shapermint.com/);
             });
 
-            const popUpWelcome = page.getByText('I’d rather pay full price');
-            if (await popUpWelcome.isVisible()){
-                await popUpWelcome.click();
-            }
+            await test.step('Validate and Close Welcome Pop up', async () => {
+                const home = new HomePage(page)
+                await test.info().attach('screenshot', {
+                    body: await page.screenshot(),
+                    contentType: 'image/png',
+                })
+                await home.closeWelcomePopUp();
+            })
 
             await test.step('Navigate to Bras Collection', async () => {
                 const home = new HomePage(page)
@@ -140,7 +151,7 @@ import { HomePage } from "./Pages/HomePage";
             });
 
             await test.step('Get value to the main PDP on the collection on GB', async () => {
-                const home = new HomePage(page)
+                const home = new BrasCollectionPage(page)
                 await home.confirmDescriptionPdpBrasCollection();
                 const locatorPrice = page.getByRole('link', { name: 'Truekind® Daily Comfort' })
                 await expect(locatorPrice).toHaveText(/£/);
@@ -174,11 +185,13 @@ import { HomePage } from "./Pages/HomePage";
                 await home.gotoUS();
             })
 
-            await test.step('Close welcome popup if is triggered', async () => {
-                const popUpWelcome = page.getByText('I’d rather pay full price');
-                if (await popUpWelcome.isVisible()){
-                    await popUpWelcome.click();
-                }
+            await test.step('Validate and Close Welcome Pop up', async () => {
+                const home = new HomePage(page)
+                await test.info().attach('screenshot', {
+                    body: await page.screenshot(),
+                    contentType: 'image/png',
+                })
+                await home.closeWelcomePopUp();
             })
 
             //Switch to USA store and validate the correct price on the Free Shiping banner
@@ -232,6 +245,67 @@ import { HomePage } from "./Pages/HomePage";
             });
         
         })
+
+        test('TC06 - Test Pop Up for stores', async ({ page }) => {
+            await test.step('', async () => {
+                const home = new HomePage(page)
+                await home.gotoUS();
+            })
+
+            await test.step('Validate and Close Welcome Pop up', async () => {
+                const home = new HomePage(page)
+                await test.info().attach('screenshot', {
+                    body: await page.screenshot(),
+                    contentType: 'image/png',
+                })
+                await home.closeWelcomePopUp();
+            })
+            
+        })
+
+        // Test case TC07 - Verifies that the tooltip is working properly
+        test('TC07 - Tooltip working properly', async ({ page }) => {
+
+            // Step to navigate to the Product Detail Page (PDP)
+            await test.step('', async () => {
+            const home = new HomePage(page);
+            await home.gotoPDP();
+            });
+
+            // Step to validate and close the welcome pop-up
+            await test.step('Validate and Close Welcome Pop up', async () => {
+            const home = new HomePage(page);
+        
+            // Attach a screenshot for documentation purposes
+            await test.info().attach('screenshot', {
+                body: await page.screenshot(),
+                contentType: 'image/png',
+            });
+                // Close the welcome pop-up
+                await home.closeWelcomePopUp();
+            });
+
+            // Step to hover over the tooltip and validate its functionality
+            await test.step('Mouse Over Tool tip', async () => {
+            const home = new BrasCollectionPage(page);
+
+            // Hover over the text review stars to display the tooltip
+            await home.mouseOverTxtReviewStars();
+
+            // Hover over the tooltip to make sure it is displayed correctly
+            await home.mouseOverToolTip();
+
+            // Validate the tooltip message
+            await home.validateMsjToolTip();
+
+            // Assert that the tooltip contains the expected text
+            await expect(page.getByText('Final Sale: product not')).toBeVisible();
+        });
+    });
+        
+            
+    
+        
 
     })
 
